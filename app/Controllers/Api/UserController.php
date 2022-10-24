@@ -63,7 +63,7 @@ class UserController extends ResourceController
                 $response = [
                     'status' => 200,
                     "error" => false,
-                    'messages' => 'Successfully, user has been registered',
+                    'message' => 'Successfully, user has been registered',
                     'data' => []
                 ];
             } else {
@@ -71,7 +71,7 @@ class UserController extends ResourceController
                 $response = [
                     'status' => 500,
                     "error" => true,
-                    'messages' => 'Failed to create user',
+                    'message' => 'Failed to create user',
                     'data' => []
                 ];
             }
@@ -131,7 +131,7 @@ class UserController extends ResourceController
                         "data" => array(
                             'id' => $userdata['id'],
                             'email' => $userdata['email'],
-                            'role' => 4,
+                            'role' => $userdata['user_level'],
                         ),
                     );
 
@@ -149,7 +149,7 @@ class UserController extends ResourceController
                     $response = [
                         'status' => 500,
                         'error' => true,
-                        'message' => 'Incorrect details',
+                        'message' => 'Credenciales incorrectas',
                         'data' => []
                     ];
                 }
@@ -157,7 +157,7 @@ class UserController extends ResourceController
                 $response = [
                     'status' => 500,
                     'error' => true,
-                    'message' => 'User not found',
+                    'message' => 'Usuario no encontrado',
                     'data' => []
                 ];
             }
