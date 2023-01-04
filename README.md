@@ -37,3 +37,14 @@ database.default.DBDriver = MySQLi
 
 ## modificar public/.htaccess 
 RewriteRule ^(.*)$ index.php?/$1 [L]
+
+
+-------------------------------------------
+## vendor folder for deployment
+
+Then building (I use Bamboo, but a shell script would do):
+1) clone the repository to a directory
+2) running composer install to install all packages (including development packages)
+3) running phpunit to go through all the tests
+4) running composer --no-dev update to remove all composer packages that are for development and testing
+5) deleting my own tests directory
