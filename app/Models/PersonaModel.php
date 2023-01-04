@@ -16,8 +16,8 @@ class PersonaModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'nombre',
-		'email',
-		'salario'
+        'email',
+        'salario'
     ];
 
     // Dates
@@ -43,4 +43,5 @@ class PersonaModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
 }

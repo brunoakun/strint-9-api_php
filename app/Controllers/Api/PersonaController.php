@@ -81,7 +81,7 @@ class PersonaController extends ResourceController
 	 * Devuelve el registro de una persona
 	 */
 	public function personaDetalle($idPer)
-	{		
+	{
 		$persona = new PersonaModel();
 		$data = $persona->find($idPer);
 
@@ -100,7 +100,7 @@ class PersonaController extends ResourceController
 				'data' => []
 			];
 		}
-		
+
 		return $this->respond($response);
 	}
 
@@ -159,7 +159,7 @@ class PersonaController extends ResourceController
 				$response = [
 					'status' => 500,
 					"error" => true,
-					'messages' => 'Persona no encontrada',
+					'message' => 'Persona no encontrada',
 					'data' => []
 				];
 			}
@@ -169,12 +169,11 @@ class PersonaController extends ResourceController
 	}
 
 	/**
-	 * deletePersona($idPer)
+	 * personaDelete($idPer)
 	 */
-	public function deletePersona($idPer)
+	public function personaDelete($idPer)
 	{
 		$emp = new PersonaModel();
-
 		$data = $emp->find($idPer);
 
 		if (!empty($data)) {
@@ -182,14 +181,14 @@ class PersonaController extends ResourceController
 			$response = [
 				'status' => 200,
 				"error" => false,
-				'messages' => 'Persona deleted successfully',
+				'message' => 'Persona eliminada correctamente',
 				'data' => []
 			];
 		} else {
 			$response = [
 				'status' => 500,
 				"error" => true,
-				'messages' => "Persona con id: $idPer No encontrda",
+				'message' => "Persona con id: $idPer No encontrda",
 				'data' => []
 			];
 		}
@@ -197,21 +196,28 @@ class PersonaController extends ResourceController
 		return $this->respond($response);
 	}
 
+
 	////////////////////////////////////////////
 
-	public function list2()
+	/**
+	 * personaSearch($buscar)
+	 * Devuelve lista de personas que contengan $buscar
+	 */
+	public function personaSearch($buscar)
 	{
-		$emp = new PersonaModel();
 		$db = db_connect();
 
-		$query   = $db->query('SELECT * from s9_personas WHERE id=2');
-		$results = $query->getResultArray();
+		// $query = $db->query("SELECT * from s9_personas WHERE nombre LIKE '%$buscar%'");
+
+		$q = "SELECT * FROM s9_personas WHERE nombre LIKE '%" . $db->escapeLikeString($buscar) . "%' ESCAPE '!'";
+		$query = $db->query($q);
+		$data = $query->getResultArray();
 
 		$response = [
 			'status' => 200,
 			"error" => false,
-			'messages' => 'Lista de personas con id=2',
-			'data' => $results
+			'messages' => "Lista de personas conteniendo $buscar",
+			'data' => $data
 		];
 		return $this->respond($response);
 	}

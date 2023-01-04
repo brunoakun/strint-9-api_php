@@ -1,18 +1,15 @@
-<?php
-
-
-//Codeigniter CORS policy
-header('Access-Control-Allow-Origin: *');
-header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-$method = $_SERVER['REQUEST_METHOD'];
-if ($method == "OPTIONS") {
-    die();
-}
+<?php 
 
 
 // Path to the front controller (this file)
 define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+
+
+// Location of the Paths config file.
+// This is the line that might need to be changed, depending on your folder structure.
+$pathsPath = FCPATH . '../app/Config/Paths.php';
+
+
 
 // Ensure the current directory is pointing to the front controller's directory
 chdir(FCPATH);

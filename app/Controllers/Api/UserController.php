@@ -12,14 +12,18 @@ use \App\Validation\CustomRules;
 class UserController extends ResourceController
 {
 
-
     public function register()
     {
+        /*
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+*/
         $rules = [
-            "name" => "required",
+            //     "name" => "required",
             "email" => "required|valid_email|is_unique[users.email]|min_length[6]",
-            "phone_no" => "required|mobileValidation[phone_no]",
+            //       "phone_no" => "required|mobileValidation[phone_no]",
             "password" => "required",
+            //        "user_level" => "required",
         ];
 
         $messages = [
@@ -37,6 +41,9 @@ class UserController extends ResourceController
             "password" => [
                 "required" => "password is required"
             ],
+            "user_level" => [
+                "required" => "user_level is required"
+            ],
         ];
 
         if (!$this->validate($rules, $messages)) {
@@ -51,9 +58,14 @@ class UserController extends ResourceController
 
             $userModel = new UserModel();
 
+            // Userlevel por defecto
+            $userLevel = $this->request->getVar("user_level");
+            if (!$userLevel) $userLevel = '1';
+
             $data = [
                 "name" => $this->request->getVar("name"),
                 "email" => $this->request->getVar("email"),
+                "user_level" => $userLevel,
                 "phone_no" => $this->request->getVar("phone_no"),
                 "password" => password_hash($this->request->getVar("password"), PASSWORD_DEFAULT),
             ];
@@ -82,7 +94,6 @@ class UserController extends ResourceController
 
     public function login()
     {
-
         header('Access-Control-Allow-Origin: *');
         header("Access-Control-Allow-Methods: GET, OPTIONS");
 
@@ -121,12 +132,12 @@ class UserController extends ResourceController
                     $key = getenv('JWT_SECRET');
 
                     $iat = time(); // current timestamp value
-                    $nbf = $iat + 10;
-                    $exp = $iat + 3600;
+                    $nbf = $iat + 1;
+                    $exp = $iat + 3600; // 1 hora
 
                     $payload = array(
                         "iat" => $iat, // issued at
-                        "nbf" => $nbf, //not before in seconds
+                        "nbf" => $nbf, // not before in seconds
                         "exp" => $exp, // expire time in seconds
                         "data" => array(
                             'id' => $userdata['id'],
@@ -192,6 +203,42 @@ class UserController extends ResourceController
                 'data' => []
             ];
         }
+        return $this->respond($response);
+    }
+
+
+    /**
+     * usrList()
+     * Lista todos los usuarios -  Requiere token en el header
+     */
+    public function usrList()
+    {
+        $key = getenv('JWT_SECRET');
+        $list = new UserModel();
+
+        try {
+            //log_message('error', $e->getMessage());
+            $token = $this->request->getServer("HTTP_AUTHORIZATION");
+            $token = str_replace('Bearer ', '', $token);
+            $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            if ($decoded) {
+                $response = [
+                    'status' => 200,
+                    "error" => false,
+                    'messages' => 'usr List',
+                    'Environment' => ENVIRONMENT,
+                    'data' => $list->findAll()
+                ];
+            }
+        } catch (Exception $ex) {
+            $response = [
+                'status' => 401,
+                'error' => true,
+                'message' => 'Access denied',
+                'data' => ["{'ex':$ex}"]
+            ];
+        }
+
         return $this->respond($response);
     }
 }
