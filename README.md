@@ -34,3 +34,6 @@ app.baseURL = 'https://sprint09.cerolab.com/'
 database.default.hostname = etzpmvnbob.mysql.db
  ...
 database.default.DBDriver = MySQLi
+
+## modificar public/.htaccess 
+RewriteRule ^(.*)$ index.php?/$1 [L]
