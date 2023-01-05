@@ -65,12 +65,17 @@ class PersonaController extends ResourceController
 	 */
 	public function personaList()
 	{
-		$emp = new PersonaModel();
+		$persona = new PersonaModel();
+		$perList = $persona->findAll();
+
+		if ($perList) $listFull = $this->addTelefonos($perList);
+		$data = $listFull;
+
 		$response = [
 			'status' => 200,
 			"error" => false,
 			'messages' => 'Lista de personas',
-			'data' => $emp->findAll()
+			'data' => $data
 		];
 
 		return $this->respond($response);
@@ -80,16 +85,19 @@ class PersonaController extends ResourceController
 	 * personaDetalle($id)
 	 * Devuelve el registro de una persona
 	 */
-	public function personaDetalle($idPer)
+	public function personaDetalle($id_persona)
 	{
 		$persona = new PersonaModel();
-		$data = $persona->find($idPer);
+
+		$perList = $persona->find($id_persona);
+
+		if ($perList) $data = $this->addTelefonos($perList);
 
 		if (!empty($data)) {
 			$response = [
 				'status' => 200,
 				"error" => false,
-				'messages' => 'Registro de persona con id ' . $idPer,
+				'messages' => 'Registro de persona con id ' . $id_persona,
 				'data' => $data
 			];
 		} else {
@@ -197,10 +205,9 @@ class PersonaController extends ResourceController
 	}
 
 
-	////////////////////////////////////////////
 
 	/**
-	 * personaSearch($buscar)
+	 * personaSearch($buscar:string)
 	 * Devuelve lista de personas que contengan $buscar
 	 */
 	public function personaSearch($buscar)
@@ -220,5 +227,48 @@ class PersonaController extends ResourceController
 			'data' => $data
 		];
 		return $this->respond($response);
+	}
+
+
+	////////////////////// FUNCIONES AUX //////////////////////
+
+	/**
+	 * addTelefonos($perList:array[])
+	 * Añadir el array de teléfonos al array de personas $perList
+	 */
+	function addTelefonos($perList)
+	{
+		if (!$perList) return ([]);
+		$persona = new PersonaModel();
+
+		if (isset($perList[0]['id'])) {
+			// Hay varias personas en $perList[]
+			foreach ($perList as $per) {
+				$per += ['telefonos' => []];
+			}
+			for ($x = 0; $x < count($perList); $x++) {
+				$id_persona = $perList[$x]['id'];
+				$telList = $persona->getTelefonosPersona($id_persona);
+				$conta = 0;
+				foreach ($telList as $tel) {
+					$perList[$x]['telefonos'][$conta]['label'] = $tel['label'];
+					$perList[$x]['telefonos'][$conta]['telefono'] = $tel['telefono'];
+					$conta++;
+				}
+			}
+		} else {
+			// Solo hay una persona en $perList
+			$perList += ['telefonos' => []];
+			$id_persona = $perList['id'];
+			$telList = $persona->getTelefonosPersona($id_persona);
+			$conta = 0;
+			foreach ($telList as $tel) {
+				$perList['telefonos'][$conta]['label'] = $tel['label'];
+				$perList['telefonos'][$conta]['telefono'] = $tel['telefono'];
+				$conta++;
+			}
+		}
+
+		return ($perList);
 	}
 }

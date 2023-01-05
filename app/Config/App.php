@@ -7,6 +7,11 @@ use CodeIgniter\Session\Handlers\FileHandler;
 
 class App extends BaseConfig
 {
+
+    public $debug = true;
+
+
+    
     /**
      * --------------------------------------------------------------------------
      * Base Site URL

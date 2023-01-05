@@ -44,4 +44,17 @@ class PersonaModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
+
+    /**
+     * METODOS
+     */
+
+    public function getTelefonosPersona($id_persona)
+    {
+        return $this->db->table('s9_telefonos')
+            ->select('*')
+            ->where('id_persona', $id_persona)
+            ->get()
+            ->getResultArray();
+    }
 }
