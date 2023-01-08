@@ -47,10 +47,19 @@ $routes->group("api", ["namespace" => "App\Controllers\Api"], function ($routes)
     $routes->group("personas", function ($routes) {
         $routes->get("list", "PersonaController::personaList");
         $routes->get("list/(:any)", "PersonaController::personaSearch/$1");
+        $routes->post("new", "PersonaController::personaNew");
+        $routes->get("detalle/(:num)", "PersonaController::personaDetalle/$1");
+        $routes->post("update/(:num)", "PersonaController::personaUpdate/$1");
+        $routes->get("delete/(:num)", "PersonaController::personaDelete/$1");
+    });
+
+    $routes->group("libros", function ($routes) {
+        $routes->get("list", "PersonaController::personaList");
+        $routes->get("list/(:any)", "PersonaController::personaSearch/$1");
         $routes->post("new", "PersonaController::personaNew", ['filter' => 'authFilter:admin']);
         $routes->get("detalle/(:num)", "PersonaController::personaDetalle/$1");
-        $routes->put("update/(:num)", "PersonaController::personaUpdate/$1");
-        $routes->get("delete/(:num)", "PersonaController::personaDelete/$1");
+        $routes->post("update/(:num)", "PersonaController::personaUpdate/$1", ['filter' => 'authFilter:admin']);
+        $routes->get("delete/(:num)", "PersonaController::personaDelete/$1", ['filter' => 'authFilter:admin']);
     });
 
     $routes->post("register", "UserController::register");

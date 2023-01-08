@@ -49,12 +49,12 @@ class PersonaModel extends Model
      * METODOS
      */
 
-    public function getTelefonosPersona($id_persona)
-    {
+    public function getTelefonosPersona($id_persona) {
         return $this->db->table('s9_telefonos')
             ->select('*')
             ->where('id_persona', $id_persona)
             ->get()
             ->getResultArray();
     }
+
 }

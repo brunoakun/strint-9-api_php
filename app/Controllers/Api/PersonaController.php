@@ -7,11 +7,15 @@ use App\Models\PersonaModel;
 
 class PersonaController extends ResourceController
 {
-	public function addPersona()
+
+	public function personaNew()
 	{
+		$db = db_connect();
+		$per = new PersonaModel();
+
 		$rules = [
 			"nombre" => "required",
-			"email" => "required|valid_email|is_unique[Personas.email]|min_length[6]",
+			"email" => "required|valid_email|is_unique[s9_personas.email]|min_length[6]",
 			"salario" => "required",
 		];
 
@@ -39,19 +43,35 @@ class PersonaController extends ResourceController
 			];
 		} else {
 
-			$emp = new PersonaModel();
-
 			$data['nombre'] = $this->request->getVar("nombre");
 			$data['email'] = $this->request->getVar("email");
 			$data['salario'] = $this->request->getVar("salario");
+			$data['telefonos'] = $this->request->getVar("telefonos");		// array
 
-			$emp->save($data);
+			$per->save($data);
+
+			// Pasan teléfonos?
+			if (count($data['telefonos'])) {
+				$idPer = $per->getInsertID();
+
+
+				// Prepara los nuevos datos del detalle para insertarlos en la tabla de detalles
+				$detalles = [];
+				foreach ($data['telefonos'] as $telefono) {
+					$telefono->id_persona = $idPer;
+					$detalles[] = $telefono;
+				}
+
+				// Inserta los nuevos datos del detalle en la tabla de detalles
+				$db->table('s9_telefonos')->insertBatch($detalles);
+			}
+
 
 			$response = [
 				'status' => 200,
 				'error' => false,
 				'message' => 'Persona añadida correctamente',
-				'data' => []
+				'data' => ['id' => $idPer]
 			];
 		}
 
@@ -116,8 +136,10 @@ class PersonaController extends ResourceController
 	/**
 	 * updatePersona($idPer)
 	 */
-	public function updatePersona($idPer)
+	public function personaUpdate($idPer)
 	{
+		$db = db_connect();
+
 		$rules = [
 			"nombre" => "required",
 			"email" => "required|valid_email|min_length[6]",
@@ -147,15 +169,33 @@ class PersonaController extends ResourceController
 			];
 		} else {
 
-			$emp = new PersonaModel();
+			$per = new PersonaModel();
 
-			if ($emp->find($idPer)) {
+			if ($per->find($idPer)) {
 
 				$data['nombre'] = $this->request->getVar("nombre");
 				$data['email'] = $this->request->getVar("email");
 				$data['salario'] = $this->request->getVar("salario");
+				$data['telefonos'] = $this->request->getVar("telefonos");
 
-				$emp->update($idPer, $data);
+				$per->update($idPer, $data);
+
+				// Actualizar teléfonos?
+				if (count($data['telefonos'])) {
+
+					// Elimina todos los detalles existentes para este maestro
+					$db->table('s9_telefonos')->delete(['id_persona' => $idPer]);
+
+					// Prepara los nuevos datos del detalle para insertarlos en la tabla de detalles
+					$detalles = [];
+					foreach ($data['telefonos'] as $telefono) {
+						$telefono->id_persona = $idPer;
+						$detalles[] = $telefono;
+					}
+
+					// Inserta los nuevos datos del detalle en la tabla de detalles
+					$db->table('s9_telefonos')->insertBatch($detalles);
+				}
 
 				$response = [
 					'status' => 200,
@@ -176,16 +216,21 @@ class PersonaController extends ResourceController
 		return $this->respond($response);
 	}
 
+
 	/**
 	 * personaDelete($idPer)
 	 */
-	public function personaDelete($idPer)
+	public function personaDelete($id_persona)
 	{
-		$emp = new PersonaModel();
-		$data = $emp->find($idPer);
+		$per = new PersonaModel();
+		$data = $per->find($id_persona);
+
+		$db = db_connect();
 
 		if (!empty($data)) {
-			$emp->delete($idPer);
+			$per->delete($id_persona);
+			$db->simpleQuery("DELETE from s9_telefonos WHERE id_persona=$id_persona");
+
 			$response = [
 				'status' => 200,
 				"error" => false,
@@ -196,7 +241,7 @@ class PersonaController extends ResourceController
 			$response = [
 				'status' => 500,
 				"error" => true,
-				'message' => "Persona con id: $idPer No encontrda",
+				'message' => "Persona con id: $id_persona No encontrda",
 				'data' => []
 			];
 		}
