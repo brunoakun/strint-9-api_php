@@ -12,6 +12,10 @@ use \App\Validation\CustomRules;
 class UserController extends ResourceController
 {
 
+    /**
+     * register(email,password)
+     */
+
     public function register()
     {
         /*
@@ -92,6 +96,10 @@ class UserController extends ResourceController
         return $this->respond($response);
     }
 
+
+    /**
+     * logIn()
+     */
     public function login()
     {
         header('Access-Control-Allow-Origin: *');
@@ -176,6 +184,10 @@ class UserController extends ResourceController
         return $this->respond($response);
     }
 
+
+    /**
+     * details(token)
+     */
     public function details()
     {
         $key = getenv('JWT_SECRET');
@@ -239,6 +251,27 @@ class UserController extends ResourceController
             ];
         }
 
+        return $this->respond($response);
+    }
+
+
+    /**
+     * existeEmail($buscar:string)
+     * return: bool
+     */
+    public function existeemail($buscar)
+    {
+        $user = new UserModel();
+        $count = $user
+            ->where('email', $buscar)
+            ->countAllResults();
+
+        $response = [
+            'status' => 200,
+            "error" => false,
+            'messages' => "comprobar si existe eMail $buscar",
+            'data' => $count
+        ];
         return $this->respond($response);
     }
 }

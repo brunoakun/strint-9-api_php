@@ -38,9 +38,8 @@ $routes->set404Override();
 $routes->get('/', 'HomeController::index');
 $routes->get('/myLista', 'HomeController::myLista');
 
-
 $routes->get('test','HomeController::myLista');
-
+$routes->get('datadonut','GraficosController::dataDonut');
 
 $routes->group("api", ["namespace" => "App\Controllers\Api"], function ($routes) {
 
@@ -65,6 +64,7 @@ $routes->group("api", ["namespace" => "App\Controllers\Api"], function ($routes)
     $routes->post("register", "UserController::register");
     $routes->post("login", "UserController::login");
     $routes->get("profile", "UserController::details");
+    $routes->get("existeemail/(:any)", "UserController::existeemail/$1");
     $routes->get("usrList", "UserController::usrList", ['filter' => 'authFilter:admin']);
 });
 
